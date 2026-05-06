@@ -15,12 +15,13 @@
 ################################################################################
 
 FROM gcr.io/oss-fuzz-base/base-builder
-RUN apt-get update && apt-get install -y subversion wget
+RUN sed -i s/snapshot.ubuntu.com/archive.ubuntu.com/g /etc/apt/sources.list 2>/dev/null || true
+RUN apt-get update && apt-get install -y git wget
 COPY . nestegg
 RUN rm -rf nestegg/mayhem
 
 # collect corpus
-RUN svn export https://github.com/webmproject/libwebm.git/trunk/testing/testdata/
+RUN git clone --depth=1 https://github.com/webmproject/libwebm.git /tmp/libwebm && cp -r /tmp/libwebm/testing/testdata .
 
 WORKDIR nestegg
 COPY mayhem/build.sh $SRC/
